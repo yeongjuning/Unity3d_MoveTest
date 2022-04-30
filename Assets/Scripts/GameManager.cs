@@ -10,19 +10,21 @@ public class GameManager : MonoBehaviour
         MoveToWards,
         RotateWards,
 
-        Max,
+        None,
     }
     
     public static GameManager Manager { private set; get; }
-    public EButtonType eButtonType { private get; set; }
+    public EButtonType eButtonType { set; get; }
 
+    [SerializeField] Transform[] ReturnPositions;
     [SerializeField] Button[] buttons_;
-    
-    bool[] isClicked = new bool[(int)EButtonType.Max];
+
+    bool[] isClicked = new bool[(int)EButtonType.None];
     
     private void Awake()
     {
         Manager = this;
+        eButtonType = EButtonType.None;
     }
     
     public void OnClickButton(int idx)
@@ -35,15 +37,18 @@ public class GameManager : MonoBehaviour
                 isClicked[idx] = true;
                 break;
         }
+
+        Debug.Log("OnClickButton : " + eButtonType.ToString());
+    }
+
+    public Transform GetReturnRandomPosition()
+    {
+        int ranIdx = Random.Range(0, ReturnPositions.Length);
+        return ReturnPositions[ranIdx];
     }
 
     public bool IsClicked(int idx)
     {
-        for (int i = 0; i < (int)EButtonType.Max; i++)
-        {
-            isClicked[i] = false;
-        }
-
-        return isClicked[idx] = true;
+        return isClicked[idx];
     }
 }
