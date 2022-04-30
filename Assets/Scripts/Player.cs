@@ -9,19 +9,24 @@ public class Player : MonoBehaviour
     [SerializeField] GameManager gameManager_;
     [SerializeField] GameObject goTarget_;
 
-    Enemy enemy;
-    Transform targetTransform;
-    CapsuleCollider targetCollider;
+    Enemy enemy_;
+    Transform targetTransform_;
+    Transform returnTransform_;
+    CapsuleCollider targetCollider_;
+    Vector3 dest_ = Vector3.zero;
 
     float moveSpeed_ = 10f;
     float stayTime = 2f;
     float timer = 0f;
 
+    bool isGoing = false;
+    bool isArrive = false;
+
     private void Awake()
     {
-        enemy = goTarget_.GetComponent<Enemy>();
-        targetTransform = goTarget_.transform.GetChild(1).transform;
-        targetCollider = goTarget_.GetComponent<CapsuleCollider>();
+        enemy_ = goTarget_.GetComponent<Enemy>();
+        targetTransform_ = goTarget_.transform.GetChild(1).transform;
+        targetCollider_ = goTarget_.GetComponent<CapsuleCollider>();
     }
 
     void Start()
@@ -42,28 +47,41 @@ public class Player : MonoBehaviour
                 break;
         }
     }
-
+    
     void PlayerMoveToWards()
     {   
-        //Debug.Log("PlayerMoveToWards");
-        transform.position = Vector3.MoveTowards(transform.position, targetTransform.position, moveSpeed_ * Time.deltaTime);
-        if (enemy.IsTriggerEnter)
+        if (enemy_.IsTriggerEnter)
         {
-            Debug.Log("IsTriggerEnter");
             timer += Time.deltaTime;
             if (timer >= stayTime)
             {
-                Debug.Log("timer : " + timer);
                 
-                Transform returnTransform = gameManager_.GetReturnRandomPosition();
-                transform.position = Vector3.MoveTowards(transform.position, returnTransform.position, moveSpeed_ * Time.deltaTime);
+                if (false == isGoing)
+                {
+                    returnTransform_ = gameManager_.GetReturnRandomPosition();
+                    dest_ = new Vector3(returnTransform_.position.x, transform.position.y, returnTransform_.position.z);
+                    isGoing = true;
+                }
+                
+                transform.position = Vector3.MoveTowards(transform.position, dest_, moveSpeed_ * Time.deltaTime);
 
-                gameManager_.eButtonType = GameManager.EButtonType.None;
-                timer = 0f;
+                isArrive = transform.position == dest_;
+                if (isArrive)
+                {
+                    timer = 0f;
+                    gameManager_.eButtonType = GameManager.EButtonType.None;
+                    enemy_.IsTriggerEnter = false;
+
+                    isGoing = false;
+                }
             }
         }
+        else
+        {
+            transform.position = Vector3.MoveTowards(transform.position, targetTransform_.position, moveSpeed_ * Time.deltaTime);
+        }
     }
-
+    
     void PlayerRotateToWards()
     {
         Debug.Log("PlayerRotateToWards");
