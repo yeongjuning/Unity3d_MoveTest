@@ -14,10 +14,13 @@ public class Player : MonoBehaviour
     Transform returnTransform_;
     CapsuleCollider targetCollider_;
     Vector3 dest_ = Vector3.zero;
+    Rigidbody rb_;
 
     float moveSpeed_ = 10f;
     float stayTime = 2f;
     float timer = 0f;
+    Vector3 towards = Vector3.zero;
+    float rotationAngle_ = 45f;
 
     bool isGoing = false;
     bool isArrive = false;
@@ -27,6 +30,8 @@ public class Player : MonoBehaviour
         enemy_ = goTarget_.GetComponent<Enemy>();
         targetTransform_ = goTarget_.transform.GetChild(1).transform;
         targetCollider_ = goTarget_.GetComponent<CapsuleCollider>();
+
+        rb_ = this.gameObject.GetComponent<Rigidbody>();
     }
 
     void Start()
@@ -71,7 +76,7 @@ public class Player : MonoBehaviour
                     timer = 0f;
                     gameManager_.eButtonType = GameManager.EButtonType.None;
                     enemy_.IsTriggerEnter = false;
-
+                    dest_ = Vector3.zero;
                     isGoing = false;
                 }
             }
@@ -85,5 +90,18 @@ public class Player : MonoBehaviour
     void PlayerRotateToWards()
     {
         Debug.Log("PlayerRotateToWards");
+        //towards = Vector3.RotateTowards(Rigidbody.transform.forward, targetForward, (float)(rotationAngle_ * 0.5 * Mathf.Deg2Rad), 1f);
+        towards = Vector3.RotateTowards(rb_.transform.forward, targetTransform_.position, rotationAngle_ * Mathf.Deg2Rad, 1f);
+
+        if (Vector3.zero != towards)
+        {
+            Quaternion curRotation = Quaternion.LookRotation(towards);
+
+            Vector3 angleClamp = curRotation.eulerAngles;
+            curRotation.eulerAngles = new Vector3(Mathf.Clamp((angleClamp.x > 180) ? angleClamp.x - 360 : angleClamp.x, -45, 45), angleClamp.y, 0);
+
+            rb_.transform.localRotation = curRotation;
+        }
     }
+
 }
