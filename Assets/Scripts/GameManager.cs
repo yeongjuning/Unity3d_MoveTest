@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     {
         MoveToWards,
         RotateWards,
+        SmoothDamp,
 
         None,
     }
@@ -34,6 +35,7 @@ public class GameManager : MonoBehaviour
         {
             case EButtonType.MoveToWards:
             case EButtonType.RotateWards:
+            case EButtonType.SmoothDamp:
                 isClicked[idx] = true;
                 break;
         }
